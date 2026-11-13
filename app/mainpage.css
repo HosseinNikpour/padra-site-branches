@@ -1,0 +1,75 @@
+/* =========================================================
+   PADRA PARK
+   MODERN INDUSTRIAL / EDITORIAL ENTERTAINMENT
+========================================================= */
+
+.home-page {
+  --bg: #e7e8ea;
+  --surface: #f5f6f7;
+  --white: #ffffff;
+  --dark: #25282d;
+  --dark-2: #30343a;
+  --text: #25282d;
+  --muted: #686d73;
+  --line: #c9ccd0;
+  --metal: #a5a9ae;
+  --blue: #1769ff;
+  --blue-light: #5ba7e8;
+
+  background: var(--bg);
+  color: var(--text);
+  direction: rtl;
+  overflow: hidden;
+}
+
+.home-page *,
+.home-page *::before,
+.home-page *::after {
+  box-sizing: border-box;
+}
+
+.home-page a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.home-page button {
+  font-family: inherit;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  direction: ltr;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+}
+
+.eyebrow::before {
+  content: "";
+  width: 28px;
+  height: 1px;
+  background: var(--blue);
+}
+
+
+
+
+/* Shared mobile safety rules */
+.home-page { width: 100%; max-width: 100%; overflow-x: clip; }
+.home-page img, .home-page video { max-width: 100%; }
+@media (max-width: 768px) {
+  .home-page section { max-width: 100%; }
+  .today-editorial-row { min-width: 0; }
+  .today-editorial-info, .today-editorial-image, .today-editorial-schedule { min-width: 0; }
+  .schedule-times { min-height: 0; max-height: 240px; overflow-y: auto; overscroll-behavior: contain; }
+  .schedule-time { overflow-wrap: anywhere; }
+  .cafe-container, .birthday-container, .about-container { width: min(100% - 28px, 100%); }
+}
+@media (max-width: 480px) {
+  .schedule-times { max-height: 210px; }
+  .today-editorial-row { gap: 12px; }
+}

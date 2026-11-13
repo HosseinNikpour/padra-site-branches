@@ -1,0 +1,207 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { parseMinutes } from "@/lib/availability";
+import { authorize } from "@/lib/auth";
+
+type RouteContext = {
+  params: Promise<{ id: string }>;
+};
+
+export async function PUT(
+  request: Request,
+  { params }: RouteContext
+) {
+  try {
+    const auth = await authorize("games.manage");
+    if (!auth.ok) return auth.response;
+
+    const { id } = await params;
+    const gameId = Number(id);
+
+    if (!Number.isInteger(gameId)) {
+      return NextResponse.json(
+        { error: "شناسه بازی معتبر نیست" },
+        { status: 400 }
+      );
+    }
+
+    const body = await request.json();
+    const branchId =
+      body.branchId === undefined
+        ? undefined
+        : body.branchId === null || body.branchId === ""
+          ? null
+          : Number(body.branchId);
+
+
+    const name = String(body.name ?? "").trim();
+    const description = String(body.description ?? "").trim();
+    const image = body.image ? String(body.image) : null;
+
+    const duration = String(body.duration ?? "").trim();
+    const capacity = String(body.capacity ?? "").trim();
+
+    const price = Number(body.price ?? 0);
+    const sortOrder = Number(body.sortOrder ?? 0);
+
+    const isActive =
+      typeof body.isActive === "boolean"
+        ? body.isActive
+        : true;
+
+    if (!name) {
+      return NextResponse.json(
+        { error: "نام بازی الزامی است" },
+        { status: 400 }
+      );
+    }
+
+    if (!duration) {
+      return NextResponse.json(
+        { error: "مدت بازی الزامی است" },
+        { status: 400 }
+      );
+    }
+
+    if (!capacity) {
+      return NextResponse.json(
+        { error: "ظرفیت بازی الزامی است" },
+        { status: 400 }
+      );
+    }
+
+    if (!Number.isFinite(price) || price < 0) {
+      return NextResponse.json(
+        { error: "قیمت معتبر نیست" },
+        { status: 400 }
+      );
+    }
+
+    if (!Number.isFinite(sortOrder)) {
+      return NextResponse.json(
+        { error: "ترتیب نمایش معتبر نیست" },
+        { status: 400 }
+      );
+    }
+
+    const game = await prisma.game.update({
+      where: {
+        id: gameId,
+      },
+      data: {
+        ...(branchId !== undefined ? { branchId } : {}),
+        name,
+        description: description || null,
+        image,
+        duration,
+        // اگر مدت بازی عدد داشته باشد (مثلاً «۲۰ دقیقه»)، مدت واقعی نوبت‌ها هم همان می‌شود
+        ...(parseMinutes(duration) ? { durationMinutes: parseMinutes(duration) as number } : {}),
+        capacity,
+        price,
+        sortOrder,
+        isActive,
+      },
+    });
+
+    return NextResponse.json(game);
+  } catch (error) {
+    console.error("GAMES PUT ERROR:", error);
+
+    return NextResponse.json(
+      { error: "خطا در ویرایش بازی" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: RouteContext
+) {
+  try {
+    const auth = await authorize("games.manage");
+    if (!auth.ok) return auth.response;
+
+    const { id } = await params;
+    const gameId = Number(id);
+
+    if (!Number.isInteger(gameId)) {
+      return NextResponse.json(
+        { error: "شناسه بازی معتبر نیست" },
+        { status: 400 }
+      );
+    }
+
+    await prisma.game.delete({
+      where: {
+        id: gameId,
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+    });
+  } catch (error) {
+    console.error("GAMES DELETE ERROR:", error);
+
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "P2003"
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "این بازی رزرو ثبت‌شده دارد و حذف نمی‌شود. به‌جای حذف، آن را غیرفعال کنید.",
+        },
+        { status: 409 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: "خطا در حذف بازی" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+
+    const gameId = Number(id);
+
+    if (!Number.isInteger(gameId)) {
+      return NextResponse.json(
+        { error: "شناسه بازی نامعتبر است" },
+        { status: 400 }
+      );
+    }
+
+    const game = await prisma.game.findUnique({
+      where: {
+        id: gameId,
+      },
+    });
+
+    if (!game || !game.isActive) {
+      return NextResponse.json(
+        { error: "بازی پیدا نشد" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(game);
+  } catch (error) {
+    console.error("GET GAME ERROR:", error);
+
+    return NextResponse.json(
+      { error: "خطا در دریافت بازی" },
+      { status: 500 }
+    );
+  }
+}

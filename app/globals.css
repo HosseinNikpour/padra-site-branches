@@ -1,0 +1,112 @@
+/* @import url("https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap"); */
+:root {
+  --black: #17212B;
+  --dark: #3E444B;
+
+  --primary: #123E73;
+  --primary-dark: #0B2D55;
+  --primary-light: #5BA7E8;
+
+  --metallic: #A7ADB5;
+
+  --white: #ffffff;
+  --background: #f7f9fb;
+  --surface: #ffffff;
+  --surface-dark: #eef2f6;
+
+  --text: #17212B;
+  --text-light: #66717d;
+
+  --accent: #2F8FE3;
+  --accent-light: #5BA7E8;
+
+  --border: rgba(18, 62, 115, 0.12);
+
+  --glow: 0 0 24px rgba(91, 167, 232, 0.28);
+}
+
+/* =========================
+   RESET
+========================= */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--text);
+  font-family: var(--font-vazirmatn), "Vazirmatn", Arial, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+button {
+  border: 0;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+.today-button {
+  width: 145px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  background: var(--primary-light);
+  color: #0b2d55;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  transition: 0.3s;
+}
+
+.today-button span {
+  font-size: 18px;
+  transition: 0.3s;
+}
+
+.today-button:hover {
+  background: #ffffff;
+  color: var(--primary);
+  box-shadow: var(--glow);
+}
+
+.today-button:hover span {
+  transform: translateX(-4px);
+}
+
+.schedule-item.active {
+  background: #eaf3fb;
+  border-right: 3px solid var(--primary-light);
+}
+
+@keyframes eventFade {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
